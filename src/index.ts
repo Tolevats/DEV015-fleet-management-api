@@ -1,0 +1,1 @@
+console.log('TypeScript in Node.js, awesome!');
