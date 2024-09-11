@@ -1,11 +1,12 @@
 //import the Express library for building web server and API in Node.js
 //Request and Response represent the HTTP request and response objects that my server handles
-import express, { Application, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
 //create an instance of an Express application. app is now an object that represents my web server
-//setting the port
-const app: Application = express();
+const app = express();
+app.use(express.json())
+
 const prisma = new PrismaClient();
 
 //app.get('/'): This sets up a route that listens for GET requests on the root URL path (/)
@@ -18,7 +19,7 @@ app.get('/taxis', async (req: Request, res: Response) => {
         // retrieving query parameters
         const plate = req.query.plate as string | undefined;
         const page = parseInt(req.query.page as string, 10) || 1;
-        const limit = parseInt(req.query.limit as string, 10) || 10;
+        const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 10; // default limit set to 10
 
         // validating page and limit
         if (page <= 0 || limit <= 0) {
@@ -35,13 +36,18 @@ app.get('/taxis', async (req: Request, res: Response) => {
             where: plate ? { plate: { contains: plate } } : {}, // filtering by plate if it's provided
             skip, // used for pagination
             take: limit, // used for pagination
+            select: { // explicitly selecting required fields
+                id: true,
+                plate: true,
+            },
         });
 
-        // returning the list of taxis
-        return res.status(200).json({
-            messge: 'successful operation',
-            data: taxis
-        });
+        // responding with just the array of taxis, NOT a wrapped object
+        return res.status(200).json(taxis); /* {
+            message: 'successful operation',
+            data: taxis, // returning the list of taxis
+            limit: taxis.length, // adding this to indicate how many taxis were returned
+        } */
     } catch (error) { // added for better handleing if there's an error
         console.error('Failed retrieving taxis', error);
         return res.status(500).json({
