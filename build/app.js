@@ -56,7 +56,7 @@ app.get('/taxis', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             limit: taxis.length, // adding this to indicate how many taxis were returned
         } */
     }
-    catch (error) { // added for better handleing if there's an error
+    catch (error) { // added for better handling if there's an error
         console.error('Failed retrieving taxis', error);
         return res.status(500).json({
             message: 'Internal server error'
