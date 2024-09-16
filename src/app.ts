@@ -20,9 +20,12 @@ app.get('/taxis', async (req: Request, res: Response) => {
         const plate = req.query.plate as string | undefined;
         const page = parseInt(req.query.page as string, 10) || 1;
         const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 10; // default limit set to 10
-
+        
+        console.log('page:', page, 'limit:', limit);
+        
         // validating page and limit
-        if (page <= 0 || limit <= 0) {
+        if (isNaN(page) || isNaN(limit) || page <= 0 || limit  <= 0 ) {
+            console.log('Validation failed for page or limit');
             return res.status(400).json({
                 message: 'Page or limit is not valid'
             });
@@ -30,6 +33,7 @@ app.get('/taxis', async (req: Request, res: Response) => {
 
         // calculating the offset for pagination
         const skip = (page - 1) * limit;
+        console.log('Pagination calculated:', skip);
 
         // querying the db using Prisma
         const taxis = await prisma.taxis.findMany({
@@ -41,7 +45,7 @@ app.get('/taxis', async (req: Request, res: Response) => {
                 plate: true,
             },
         });
-
+        console.log('Taxis fetched:', taxis);
         // responding with just the array of taxis, NOT a wrapped object
         return res.status(200).json(taxis); /* {
             message: 'successful operation',
