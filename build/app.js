@@ -6,8 +6,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const taxiRoutes_1 = __importDefault(require("./routes/taxiRoutes"));
+const trajectoryRoutes_1 = __importDefault(require("./routes/trajectoryRoutes"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
-//register taxi routes
+//register routes
 app.use(taxiRoutes_1.default);
+app.use(trajectoryRoutes_1.default);
 exports.default = app;

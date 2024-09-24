@@ -2,11 +2,14 @@
 
 import express from 'express';
 import taxiRoutes from './routes/taxiRoutes';
+import trajectoryRoutes from './routes/trajectoryRoutes';
 
 const app = express();
+
 app.use(express.json())
 
-//register taxi routes
+//register routes
 app.use(taxiRoutes);
+app.use(trajectoryRoutes);
 
 export default app;
