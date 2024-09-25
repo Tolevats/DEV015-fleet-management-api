@@ -1,7 +1,10 @@
-import { findTrajectoriesByTaxiAndDate } from '../repositories/trajectoryRepository';
+import { findTrajectoriesByTaxiAndDate, findLatestTrajectories } from '../repositories/trajectoryRepository';
 
 export const getTrajectories = async (taxiId: string, date: string) => {
-  const trajectories = await findTrajectoriesByTaxiAndDate(taxiId, date);
+  return await findTrajectoriesByTaxiAndDate(taxiId, date);
+};
 
-  return trajectories;
+//service method to get the latest trajectories
+export const getLatestTrajectories = async () => {
+  return await findLatestTrajectories();
 };

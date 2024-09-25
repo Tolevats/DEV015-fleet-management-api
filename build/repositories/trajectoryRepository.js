@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.findTrajectoriesByTaxiAndDate = void 0;
+exports.findLatestTrajectories = exports.findTrajectoriesByTaxiAndDate = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 const findTrajectoriesByTaxiAndDate = (taxiId, date) => __awaiter(void 0, void 0, void 0, function* () {
@@ -56,3 +56,34 @@ const findTrajectoriesByTaxiAndDate = (taxiId, date) => __awaiter(void 0, void 0
     return transformedTrajectories;
 });
 exports.findTrajectoriesByTaxiAndDate = findTrajectoriesByTaxiAndDate;
+//method to find the latest trajectories
+const findLatestTrajectories = () => __awaiter(void 0, void 0, void 0, function* () {
+    const latestTrajectories = yield prisma.trajectories.findMany({
+        include: {
+            taxis: true, //connecting to taxis model
+        },
+        orderBy: {
+            date: 'desc', //get the latest data based on date
+        },
+        take: 10, //limit to 10 latest entries
+    });
+    //transforming the result using built-in methods
+    return latestTrajectories.map((trajectory) => {
+        var _a, _b;
+        return ({
+            taxiId: trajectory.taxi_id,
+            plate: (_a = trajectory.taxis) === null || _a === void 0 ? void 0 : _a.plate,
+            timestamp: (_b = trajectory.date) === null || _b === void 0 ? void 0 : _b.toLocaleString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+            }),
+            latitude: trajectory.latitude,
+            longitude: trajectory.longitude,
+        });
+    });
+});
+exports.findLatestTrajectories = findLatestTrajectories;

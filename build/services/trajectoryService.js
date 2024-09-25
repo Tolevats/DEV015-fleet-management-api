@@ -9,10 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTrajectories = void 0;
+exports.getLatestTrajectories = exports.getTrajectories = void 0;
 const trajectoryRepository_1 = require("../repositories/trajectoryRepository");
 const getTrajectories = (taxiId, date) => __awaiter(void 0, void 0, void 0, function* () {
-    const trajectories = yield (0, trajectoryRepository_1.findTrajectoriesByTaxiAndDate)(taxiId, date);
-    return trajectories;
+    return yield (0, trajectoryRepository_1.findTrajectoriesByTaxiAndDate)(taxiId, date);
 });
 exports.getTrajectories = getTrajectories;
+//service method to get the latest trajectories
+const getLatestTrajectories = () => __awaiter(void 0, void 0, void 0, function* () {
+    return yield (0, trajectoryRepository_1.findLatestTrajectories)();
+});
+exports.getLatestTrajectories = getLatestTrajectories;
