@@ -52,3 +52,32 @@ export const findTrajectoriesByTaxiAndDate = async (taxiId: string, date: string
 
   return transformedTrajectories;
 };
+
+//method to find the latest trajectories
+export const findLatestTrajectories = async () => {
+  const latestTrajectories = await prisma.trajectories.findMany({
+    include: {
+      taxis: true, //connecting to taxis model
+    },
+    orderBy: {
+      date: 'desc', //get the latest data based on date
+    },
+    take: 10, //limit to 10 latest entries
+  });
+
+  //transforming the result using built-in methods
+  return latestTrajectories.map((trajectory) => ({
+    taxiId: trajectory.taxi_id,
+    plate: trajectory.taxis?.plate,
+    timestamp: trajectory.date?.toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }),
+    latitude: trajectory.latitude,
+    longitude: trajectory.longitude,
+  }));
+};
