@@ -58,21 +58,40 @@ const findTrajectoriesByTaxiAndDate = (taxiId, date) => __awaiter(void 0, void 0
 exports.findTrajectoriesByTaxiAndDate = findTrajectoriesByTaxiAndDate;
 //method to find the latest trajectories
 const findLatestTrajectories = () => __awaiter(void 0, void 0, void 0, function* () {
-    const latestTrajectories = yield prisma.trajectories.findMany({
-        include: {
-            taxis: true, //connecting to taxis model
+    //group by taxi_id and get the latest date for each taxi
+    const latestTrajectories = yield prisma.trajectories.groupBy({
+        by: ['taxi_id'],
+        _max: {
+            date: true,
         },
         orderBy: {
-            date: 'desc', //get the latest data based on date
+            _max: {
+                date: 'desc', //get the latest data based on date
+            },
         },
         take: 10, //limit to 10 latest entries
     });
+    //fetch full trajectory details for the latest records
+    const detailedTrajectories = yield Promise.all(latestTrajectories.map((trajectory) => __awaiter(void 0, void 0, void 0, function* () {
+        const detailedTrajectory = yield prisma.trajectories.findFirst({
+            where: {
+                taxi_id: trajectory.taxi_id,
+                date: trajectory._max.date,
+            },
+            include: {
+                taxis: {
+                    select: { plate: true }, //only select the taxi plate
+                },
+            },
+        });
+        return detailedTrajectory;
+    })));
     //transforming the result using built-in methods
-    return latestTrajectories.map((trajectory) => {
+    return detailedTrajectories.map((trajectory) => {
         var _a, _b;
         return ({
-            taxiId: trajectory.taxi_id,
-            plate: (_a = trajectory.taxis) === null || _a === void 0 ? void 0 : _a.plate,
+            taxiId: trajectory.taxi_id, //with non-null assertion
+            plate: (_a = trajectory.taxis) === null || _a === void 0 ? void 0 : _a.plate, //with non-null assertion
             timestamp: (_b = trajectory.date) === null || _b === void 0 ? void 0 : _b.toLocaleString('en-US', {
                 year: 'numeric',
                 month: '2-digit',
@@ -81,8 +100,8 @@ const findLatestTrajectories = () => __awaiter(void 0, void 0, void 0, function*
                 minute: '2-digit',
                 second: '2-digit',
             }),
-            latitude: trajectory.latitude,
-            longitude: trajectory.longitude,
+            latitude: trajectory.latitude, //with non-null assertion
+            longitude: trajectory.longitude, //with non-null assertion
         });
     });
 });

@@ -55,21 +55,43 @@ export const findTrajectoriesByTaxiAndDate = async (taxiId: string, date: string
 
 //method to find the latest trajectories
 export const findLatestTrajectories = async () => {
-  const latestTrajectories = await prisma.trajectories.findMany({
-    include: {
-      taxis: true, //connecting to taxis model
+  //group by taxi_id and get the latest date for each taxi
+  const latestTrajectories = await prisma.trajectories.groupBy({
+    by: ['taxi_id'],
+    _max: {
+      date: true,
     },
     orderBy: {
-      date: 'desc', //get the latest data based on date
+      _max: {
+        date: 'desc', //get the latest data based on date
+      },
     },
     take: 10, //limit to 10 latest entries
   });
 
+  //fetch full trajectory details for the latest records
+  const detailedTrajectories = await Promise.all(
+    latestTrajectories.map(async (trajectory) => {
+      const detailedTrajectory = await prisma.trajectories.findFirst({
+        where: {
+          taxi_id: trajectory.taxi_id,
+          date: trajectory._max.date,
+        },
+        include: {
+          taxis: {
+            select: { plate: true }, //only select the taxi plate
+          },
+        },
+      });
+      return detailedTrajectory;
+    })
+  );
+
   //transforming the result using built-in methods
-  return latestTrajectories.map((trajectory) => ({
-    taxiId: trajectory.taxi_id,
-    plate: trajectory.taxis?.plate,
-    timestamp: trajectory.date?.toLocaleString('en-US', {
+  return detailedTrajectories.map((trajectory) => ({
+    taxiId: trajectory!.taxi_id, //with non-null assertion
+    plate: trajectory!.taxis?.plate, //with non-null assertion
+    timestamp: trajectory!.date?.toLocaleString('en-US', { //with non-null assertion
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -77,7 +99,7 @@ export const findLatestTrajectories = async () => {
       minute: '2-digit',
       second: '2-digit',
     }),
-    latitude: trajectory.latitude,
-    longitude: trajectory.longitude,
+    latitude: trajectory!.latitude, //with non-null assertion
+    longitude: trajectory!.longitude, //with non-null assertion
   }));
 };
