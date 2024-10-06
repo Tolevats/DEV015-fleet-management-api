@@ -1,4 +1,4 @@
-import { createUser, findUserByEmail, getUsers, countUsers, updateUser, deleteUser } from '../repositories/userRepository';
+import { createUser, findUserByEmail, getUsers, updateUser, deleteUser } from '../repositories/userRepository';
 
 //POST
 export const createNewUser = async (name: string, email: string, password: string) => {
@@ -19,22 +19,7 @@ export const createNewUser = async (name: string, email: string, password: strin
 
 //GET
 export const fetchUsers = async (page: number = 1, limit: number = 10) => {
-  //validate that page and limit are positive integers:
-  if (isNaN(page) || page < 1 || isNaN(limit) || limit < 1) {
-    throw { status: 400, message: 'Invalid page or limit parameters' };
-  }
-  //get users and total count:
-  const users = await getUsers(page, limit);
-  const totalUsers = await countUsers();
-  //calculate total pages:
-  const totalPages = Math.ceil(totalUsers / limit);
-
-  return {
-    users,
-    totalPages,
-    currentPage: page,
-    limit,
-  };
+  return getUsers(page, limit);
 };
 
 //PATCH
