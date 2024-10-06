@@ -28,34 +28,32 @@ export const createUser = async (req: Request, res: Response) => {
 
 //GET: list users with pagination
 export const getUsers = async (req: Request, res: Response) => {
+  //get query parameters
+  const pageParam = req.query.page as string;
+  const limitParam = req.query.limit as string;
+
+  //apply default values only if parameters are undefined or missing
+  const page = pageParam ? parseInt(pageParam, 10) : 1; //default to 1 if missing
+  const limit = limitParam ? parseInt(limitParam, 10) : 10; //default to 10 if missing
+
+  //validate that page and limit are positive integers
+  if (isNaN(page) || page < 1) {
+    return res.status(400).json({ error: 'Invalid page parameter' });
+  }
+  if (isNaN(limit) || limit < 1) {
+    return res.status(400).json({ error: 'Invalid limit parameter' });
+  }
+
+  //fetch paginated users
   try {
-    //parse pagination parameters from query string, with defaults
-    const page = parseInt(req.query.page as string, 10) || 1;
-    const limit = parseInt(req.query.limit as string, 10) || 10;
-
-    //validate that page and limit are positive integers
-    if (isNaN(page) || page < 1) {
-      return res.status(400).json({ error: 'Invalid page parameter' });
-    }
-    if (isNaN(limit) || limit < 1) {
-      return res.status(400).json({ error: 'Invalid limit parameter' });
-    }
-
-    //fetch paginated users
-    const result = await fetchUsers(page, limit);
-
- //respond with users data (only the users array for the tests)
- res.status(200).json(result.users);
-} catch (error: any) {
-  if (error.status === 400) {
-    res.status(400).json({ error: error.message });
-  } else {
+    const users = await fetchUsers(page, limit);
+    res.status(200).json(users);
+  } catch (error: any) {
     res.status(500).json({ error: 'Error fetching users' });
   }
-}
 };
 
-//PATCH: modify a user
+//PATCH: modify/update a user
 export const patchUser = async (req: Request, res: Response) => {
   const { uid } = req.params;
   const data = req.body;
