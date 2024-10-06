@@ -4,8 +4,7 @@ const prisma = new PrismaClient();
 
 //POST: create a user
 export const createUser = async (name: string, email: string, password: string) => {
-    try {
-      const newUser = await prisma.users.create({
+  const newUser = await prisma.users.create({
         data: {
         name,
         email,
@@ -13,55 +12,27 @@ export const createUser = async (name: string, email: string, password: string) 
       },
     });
     return newUser;
-    console.log(newUser);
-
-  } catch (error) {
-    throw error;
-  }
+    // console.log(newUser);
 };
 
 export const findUserByEmail = async (email: string) => {
-    try {
-      return await prisma.users.findUnique({
-        where: { email },
-      });
-    } catch (error) {
-      throw error;
-    }
-  };
+  return await prisma.users.findUnique({
+    where: { email },
+  });
+};
 
 //GET: list users with pagination
 export const getUsers = async (page: number, limit: number) => {
-  const skip = (page - 1) * limit; // Calculate how many records to skip
-  try {
-    const users = await prisma.users.findMany({
-      skip,
-      take: limit,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-      },
-    });
-    return users;
-  } catch (error) {
-    throw error;
-  }
+  const users = await prisma.users.findMany({
+    skip: (page - 1) * limit,
+    take: limit,
+  });
+  return users;
 };
 
-//count total users (for pagination metadata)
-export const countUsers = async () => {
-  try {
-    return await prisma.users.count();
-  } catch (error) {
-    throw error;
-  }
-};
-
-//PATCH: modify a user
+//PATCH: modify/update a user
 export const updateUser = async (uid: string, data: { name?: string }) => {
-  try {
-    //first, find the user by id or email
+  //first, find the user by id or email
     const user = await prisma.users.findFirst({
       where: {
         OR: [
@@ -80,49 +51,44 @@ export const updateUser = async (uid: string, data: { name?: string }) => {
       where: {
         id: user.id, //use the found user's unique ID
       },
-      data, //apply the provided update data
+      data: {
+        name: user.name,
+      },
     });
 
     return user;
-  } catch (error) {
-    throw error;
-  }
 };
   
 //DELETE: delete a user
 export const deleteUser = async (uid: string | number) => {
-  try {
-    let user;
+  let user;
 
-    if (typeof uid === 'number') {
-      //search by id
-      user = await prisma.users.findUnique({
-        where: {
-          id: uid,
-        },
-      });
-    } else if (typeof uid === 'string') {
-      //search by email
-      user = await prisma.users.findUnique({
-        where: {
-          email: uid,
-        },
-      });
-    }
-
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    //delete the user
-    const deletedUser = await prisma.users.delete({
+  if (typeof uid === 'number') {
+    //search by id
+    user = await prisma.users.findUnique({
       where: {
-        id: user.id,
+      id: uid,
       },
     });
-
-    return deletedUser;
-  } catch (error) {
-    throw error;
+  } else if (typeof uid === 'string') {
+    //search by email
+    user = await prisma.users.findUnique({
+      where: {
+      email: uid,
+      },
+    });
   }
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  //delete the user
+  const deletedUser = await prisma.users.delete({
+    where: {
+      id: user.id,
+    },
+  });
+
+  return deletedUser;
 };
