@@ -33,30 +33,30 @@ export const getUsers = async (page: number, limit: number) => {
 //PATCH: modify/update a user
 export const updateUser = async (uid: string, data: { name?: string }) => {
   //first, find the user by id or email
-    const user = await prisma.users.findFirst({
-      where: {
-        OR: [
-          { id: !isNaN(Number(uid)) ? Number(uid) : undefined }, //check if uid is a number
-          { email: uid } //otherwise, treat it as an email
-        ],
-      },
-    });
+  const user = await prisma.users.findFirst({
+    where: {
+      OR: [
+        { id: !isNaN(Number(uid)) ? Number(uid) : undefined }, //check if uid is a number
+        { email: uid } //otherwise, treat it as an email
+      ],
+    },
+  });
     //if user not found, throw error
-    if (!user) {
+/*     if (!user) {
       throw new Error('User not found');
-    }
+    } */
 
     //then, update the user using their unique id
     const updatedUser = await prisma.users.update({
       where: {
-        id: user.id, //use the found user's unique ID
+        id: user?.id, //use the found user's unique ID
       },
       data: {
-        name: user.name,
+        name: data.name ?? user?.name, //update the name only if provided
       },
     });
 
-    return user;
+    return updatedUser; //return the updated user object
 };
   
 //DELETE: delete a user

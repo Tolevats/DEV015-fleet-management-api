@@ -55,8 +55,8 @@ export const getUsers = async (req: Request, res: Response) => {
 
 //PATCH: modify/update a user
 export const patchUser = async (req: Request, res: Response) => {
-  const { uid } = req.params;
-  const data = req.body;
+  const { uid } = req.params; //get uid from route params
+  const data = req.body; //get body data
 
   //ensure the request body contains something to update
   if (!data || !Object.keys(data).length) {
@@ -64,8 +64,8 @@ export const patchUser = async (req: Request, res: Response) => {
   }
 
   try {
-    const updatedUser = await updateUserData(uid, data);
-    res.status(200).json({
+    const updatedUser = await updateUserData(uid, data); //update user
+    return res.status(200).json({
       id: updatedUser.id,
       name: updatedUser.name,
       email: updatedUser.email,

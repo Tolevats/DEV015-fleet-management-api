@@ -9,12 +9,12 @@ export const createNewUser = async (name: string, email: string, password: strin
     throw { status: 409, message: 'User with that email already exists' };
   }
   //creating a new user:
-  try {
-    const newUser = await createUser(name, email, password);
-    return newUser;
-  } catch (error) {
+  //try {
+  const newUser = await createUser(name, email, password);
+  return newUser;
+  /* } catch (error) {
     throw { status: 400, message: 'Error creating user' };
-  }
+  } */
 };
 
 //GET
@@ -28,18 +28,10 @@ export const updateUserData = async (uid: string, data: { name?: string }) => {
   if (data.hasOwnProperty('email') || data.hasOwnProperty('password')) {
     throw { status: 400, message: 'It is not possible to modify email or password' };
   }
+  //proceed to update the user using uid (which can be either id or email)
+  const updatedUser = await updateUser(uid, data);
 
-  //then proceed to update the user
-  try {
-    const updatedUser = await updateUser(uid, data);
-    return updatedUser;
-  } catch (error: any) {
-    if (error.message === 'User not found') {
-    throw { status: 400, message: 'Error updating user' };
-    } else {
-    throw { status: 500, message: 'An error occurred while updating the user' };
-    }
-  }
+  return updatedUser;
 };
 
 //DELETE
