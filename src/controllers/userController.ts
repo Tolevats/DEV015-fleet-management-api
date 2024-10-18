@@ -65,19 +65,15 @@ export const patchUser = async (req: Request, res: Response) => {
 
   try {
     const updatedUser = await updateUserData(uid, data); //update user
-    return res.status(200).json({
-      id: updatedUser.id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-    });
+    return res.status(200).json(updatedUser);
   } catch (error: any) {
     if (error.status === 400) {
       return res.status(400).json({ error: error.message });
     }
-    if (error.status === 404) {
-      return res.status(404).json({ error: error.message });
+    if (error.message === 'User not found') {
+      return res.status(404).json({ error: 'User not found' });
     }
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 

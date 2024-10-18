@@ -9,12 +9,8 @@ export const createNewUser = async (name: string, email: string, password: strin
     throw { status: 409, message: 'User with that email already exists' };
   }
   //creating a new user:
-  //try {
   const newUser = await createUser(name, email, password);
   return newUser;
-  /* } catch (error) {
-    throw { status: 400, message: 'Error creating user' };
-  } */
 };
 
 //GET
@@ -27,10 +23,16 @@ export const updateUserData = async (uid: string, data: { name?: string }) => {
   //ensuring that email or password is not being updated
   if (data.hasOwnProperty('email') || data.hasOwnProperty('password')) {
     throw { status: 400, message: 'It is not possible to modify email or password' };
+  } 
+  //validating allowed fields
+  const allowedFields = ['name']; // List of allowed update fields
+  const keys = Object.keys(data);
+  //checking if the data contains only allowed fields
+  if (!data || !keys.length || !keys.every(key => allowedFields.includes(key))) {
+    throw { status: 400, message: 'Invalid request body' };
   }
   //proceed to update the user using uid (which can be either id or email)
   const updatedUser = await updateUser(uid, data);
-
   return updatedUser;
 };
 

@@ -41,22 +41,21 @@ export const updateUser = async (uid: string, data: { name?: string }) => {
       ],
     },
   });
-    //if user not found, throw error
-/*     if (!user) {
-      throw new Error('User not found');
-    } */
+  //if user not found, throw error
+  if (!user) {
+    throw new Error('User not found'); // Throw error for missing user
+  }
+  //then, update the user using their unique id
+  const updatedUser = await prisma.users.update({
+    where: {
+      id: user?.id, //use the found user's unique ID
+    },
+    data: {
+      name: data.name ?? user?.name, //update the name only if provided
+    },
+  });
 
-    //then, update the user using their unique id
-    const updatedUser = await prisma.users.update({
-      where: {
-        id: user?.id, //use the found user's unique ID
-      },
-      data: {
-        name: data.name ?? user?.name, //update the name only if provided
-      },
-    });
-
-    return updatedUser; //return the updated user object
+  return updatedUser; //return the updated user object
 };
   
 //DELETE: delete a user
