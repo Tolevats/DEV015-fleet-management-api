@@ -66,20 +66,20 @@ export const deleteUser = async (uid: string | number) => {
     //search by id
     user = await prisma.users.findUnique({
       where: {
-      id: uid,
+        id: uid,
       },
     });
   } else if (typeof uid === 'string') {
     //search by email
     user = await prisma.users.findUnique({
       where: {
-      email: uid,
+        email: uid,
       },
     });
   }
 
   if (!user) {
-    throw new Error('User not found');
+    throw new Error('User not found'); //return null;
   }
 
   //delete the user

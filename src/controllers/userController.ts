@@ -78,21 +78,43 @@ export const patchUser = async (req: Request, res: Response) => {
 };
 
 //DELETE
-export const deleteUser = async (req: Request, res: Response) => {
+/* export const deleteUser = async (req: Request, res: Response) => {
   const { uid } = req.params;
 
   try {
     const deletedUser = await removeUser(uid);
-    res.status(200).json({
+    res.json(deletedUser);
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(404).json({ error: 'User not found' });
+  }
+}; */
+export const deleteUser = async (req: Request, res: Response) => {
+  const { uid } = req.params;
+   // Log the UID being passed in the request
+   console.log(`Deleting user with uid: ${uid}`);
+  try {
+    const deletedUser = await removeUser(uid);
+    //checking if user was deleted
+    if (!deletedUser) {
+      console.log('User not found in the database.');
+      return res.status(404).json({ error: 'User not found' });
+    }
+    console.log('User found and deleted successfully.');
+    //returning the user data if successful
+    return res.status(200).json({
       id: deletedUser.id,
       name: deletedUser.name,
       email: deletedUser.email,
     });
-  } catch (error: any) {
-    if (error.status === 404) {
-      res.status(404).json({ error: 'User not found' });
-    } else {
-      res.status(500).json({ error: 'An error occurred while deleting the user' });
+  } catch (error:any) {
+    // Handle "User not found" error separately
+    if (error.message === 'User not found') {
+      console.log('Error: User not found');
+      return res.status(404).json({ error: 'User not found' });
     }
+    // Log and handle all other errors as 500
+    console.error('Error during deletion:', error);
+    res.status(500).json({ error: 'An error occurred while deleting the user' });
   }
 };

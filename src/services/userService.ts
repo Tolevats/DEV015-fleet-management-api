@@ -37,14 +37,15 @@ export const updateUserData = async (uid: string, data: { name?: string }) => {
 };
 
 //DELETE
-export const removeUser = async (uid: string | number) => {
-  try {
-    const deletedUser = await deleteUser(uid);
-    return deletedUser;
-  } catch (error: any) {
-    if (error.message === 'User not found') {
-      throw { status: 404, message: 'User not found' };
-    }
-    throw { status: 500, message: 'Error deleting the user' };
-  }
+export const removeUser = async (uid: string) => {
+  const deletedUser = await deleteUser(uid);
+  return deletedUser;
 };
+/* export const removeUser = async (uid: string | number) => {
+  const deletedUser = await deleteUser(uid);
+  //returning null if no user is found
+  if (!deletedUser) {
+    return null;
+  }
+  return deletedUser;
+}; */
