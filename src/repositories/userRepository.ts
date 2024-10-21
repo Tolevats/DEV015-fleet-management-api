@@ -59,7 +59,7 @@ export const updateUser = async (uid: string, data: { name?: string }) => {
 };
   
 //DELETE: delete a user
-export const deleteUser = async (uid: string | number) => {
+/* export const deleteUser = async (uid: string | number) => {
   let user;
 
   if (typeof uid === 'number') {
@@ -90,4 +90,13 @@ export const deleteUser = async (uid: string | number) => {
   });
 
   return deletedUser;
+};
+ */
+export const deleteUser = async (uid: string) => {
+  return await prisma.users.delete({
+    where: {
+      id: parseInt(uid) || undefined,
+      email: isNaN(parseInt(uid)) ? uid : undefined,
+    },
+  });
 };
