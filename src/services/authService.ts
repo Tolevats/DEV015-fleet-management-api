@@ -13,7 +13,7 @@ export const authenticateUser = async (email: string, password: string) => {
     throw { status: 401, message: 'Invalid email or password' };
   }
 
-  const isPasswordValid = await verifyPassword(password, user.password);
+  const isPasswordValid = user?.password && await verifyPassword(password, user.password);
 
   if (!isPasswordValid) {
     throw { status: 401, message: 'Invalid email or password' };
