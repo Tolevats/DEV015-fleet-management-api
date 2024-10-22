@@ -1,30 +1,31 @@
-import jwt from 'jsonwebtoken';
-import { findUserByEmail, verifyPassword } from '../repositories/userRepository';
+import { compare } from 'bcrypt';
+import { generateToken } from '../utils/jwt';
+import { findUserByEmail } from '../repositories/userRepository';
 
-// Define a secret key for JWT
-const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
-const JWT_EXPIRATION = '1h'; // Set a suitable expiration time
-
-// Authenticate user and generate JWT
+//authenticating user and generating JWT
 export const authenticateUser = async (email: string, password: string) => {
   const user = await findUserByEmail(email);
 
+  //if the user is not found
   if (!user) {
-    throw { status: 401, message: 'Invalid email or password' };
+    throw { status: 404, message: 'Invalid email or password' };
   }
 
-  const isPasswordValid = user?.password && await verifyPassword(password, user.password);
-
+  //comparing the provided password with the stored hashed password
+  const isPasswordValid = user?.password && await compare(password, user.password);
   if (!isPasswordValid) {
-    throw { status: 401, message: 'Invalid email or password' };
+    throw { status: 404, message: 'Invalid email or password' };
   }
 
-  // Create a JWT token
-  const token = jwt.sign(
-    { userId: user.id, email: user.email },
-    JWT_SECRET,
-    { expiresIn: JWT_EXPIRATION }
-  );
+  //generating a JWT token with the user's id
+  const accessToken = generateToken(user.id);
 
-  return { token, userId: user.id };
+  //returning the token and user info
+  return {
+    accessToken,
+    user: {
+      id: user.id,
+      email: user.email,
+    },
+  };
 };
