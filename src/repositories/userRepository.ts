@@ -21,10 +21,6 @@ export const findUserByEmail = async (email: string) => {
     where: { email },
   });
 };
-//verifying password using bcrypt
-export const verifyPassword = async (inputPassword: string, storedPassword: string) => {
-  return bcrypt.compare(inputPassword, storedPassword);
-};
 
 //GET: list users with pagination
 export const getUsers = async (page: number, limit: number) => {
