@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { authenticateUser } from '../services/authService';
 
-export const loginUser = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -9,9 +9,18 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 
   try {
-    const { token, userId } = await authenticateUser(email, password);
-    return res.status(200).json({ token, userId });
+    // Authenticate the user
+    const { accessToken, user } = await authenticateUser(email, password);
+
+    // If authentication is successful, respond with token and user info
+    res.status(200).json({ accessToken, user });
   } catch (error: any) {
-    return res.status(error.status || 500).json({ error: error.message || 'Internal server error' });
+    // Handle invalid credentials (404)
+    if (error.status === 404) {
+      return res.status(404).json({ error: 'Invalid email or password' });
+    }
+
+    // Handle server errors (500)
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
