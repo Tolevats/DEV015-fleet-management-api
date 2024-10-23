@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -14,7 +15,7 @@ export const createUser = async (name: string, email: string, password: string) 
     return newUser;
     // console.log(newUser);
 };
-
+//finding user by email
 export const findUserByEmail = async (email: string) => {
   return await prisma.users.findUnique({
     where: { email },
@@ -59,39 +60,6 @@ export const updateUser = async (uid: string, data: { name?: string }) => {
 };
   
 //DELETE: delete a user
-/* export const deleteUser = async (uid: string | number) => {
-  let user;
-
-  if (typeof uid === 'number') {
-    //search by id
-    user = await prisma.users.findUnique({
-      where: {
-        id: uid,
-      },
-    });
-  } else if (typeof uid === 'string') {
-    //search by email
-    user = await prisma.users.findUnique({
-      where: {
-        email: uid,
-      },
-    });
-  }
-
-  if (!user) {
-    throw new Error('User not found'); //return null;
-  }
-
-  //delete the user
-  const deletedUser = await prisma.users.delete({
-    where: {
-      id: user.id,
-    },
-  });
-
-  return deletedUser;
-};
- */
 export const deleteUser = async (uid: string) => {
   return await prisma.users.delete({
     where: {
